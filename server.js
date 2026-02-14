@@ -238,7 +238,16 @@ builder.defineSubtitlesHandler(async ({ type, id }) =>
    SERVIDOR HTTP NATIVO
    --------------------------- */
 const addonInterface = builder.getInterface()
+const PORT = process.env.PORT || 7000
 
-Now need to provide final snippet to create server (the bottom lines missing). Also ensure import fix done earlier. Provide final code including missing bottom part. Also may need to change package.json engines? Already set to node 20.x. Provide commit/push/redeploy instructions and test. Also mention that earlier error resolved. Provide short note about if pkg doesn't include serveHTTP maybe older SDK? But logs earlier suggested serveHTTP exists — prior suggestion. But in first logs earlier they suggested using default import and destructure; we've done that.
+http.createServer((req, res) => {
+  if (req.url === "/manifest.json") {
+    res.writeHead(200, { "Content-Type": "application/json" })
+    res.end(JSON.stringify(manifest))
+    return
+  }
 
-Let's produce final assistant message with full corrected server.js with bottom lines: http.createServer... serveHTTP(addonInterface,...). Also ensure addonBuilder used as earlier. Provide instructions to replace server.js, npm install, npm start, curl manifest. Provide Git commit commands and redeploy steps. Keep concise.
+  serveHTTP(addonInterface, req, res)
+}).listen(PORT, () => {
+  console.log("UNIFICADO FULL corriendo en puerto", PORT)
+})

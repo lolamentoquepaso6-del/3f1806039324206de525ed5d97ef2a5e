@@ -1,15 +1,12 @@
-// server.js — AUTOCONTENIDO (no necesita unificado.json externo)
+// server.js — CORREGIDO para stremio-addon-sdk CommonJS
 import http from "http"
 import axios from "axios"
-import { addonBuilder, serveHTTP } from "stremio-addon-sdk"
+import pkg from "stremio-addon-sdk"   // <- importar como default (CommonJS)
+const { addonBuilder, serveHTTP } = pkg
 
-const PORT = process.env.PORT || 7000
-console.log("UNIFIED-FULL EMBEDDED STARTING... (marker v2026-02-14)")
+console.log("UNIFIED-FULL EMBEDDED STARTING... (fixed import)")
 
-/*
-  UNIFICADO embebido (contenido exacto que subiste).
-  No se necesita archivo externo.
-*/
+/* === UNIFICADO embebido (recorta/pega exactamente lo que quieras mantener) === */
 const UNIFICADO = {
   "id": "org.unificado.stremio.meta",
   "version": "1.0.0",
@@ -92,7 +89,6 @@ function extractSourcesFromUnificado(u) {
    CACHE SIMPLE EN MEMORIA
    --------------------------- */
 const CACHE = new Map()
-// cache entry: { expiresAt: number (ms), value: any }
 function getCached(key) {
   const e = CACHE.get(key)
   if (!e) return null
@@ -122,7 +118,6 @@ async function fetchSingle(baseManifestUrl, path) {
   }
 }
 
-// simple concurrency runner
 async function fetchAllWithConcurrency(sources, path, concurrency = 6) {
   const results = []
   const pool = []
@@ -140,7 +135,6 @@ async function fetchAllWithConcurrency(sources, path, concurrency = 6) {
       pool.length = 0
     }
   }
-  // remaining
   if (pool.length) {
     const settled = await Promise.allSettled(pool)
     for (const s of settled) if (s.status === "fulfilled" && s.value) results.push(s.value)
@@ -154,13 +148,11 @@ async function fetchAllWithConcurrency(sources, path, concurrency = 6) {
 function extractArrayFromResponse(resData) {
   if (!resData) return []
   if (Array.isArray(resData)) return resData
-  // claves comunes
   if (resData.metas) return resData.metas
   if (resData.meta) return [resData.meta].filter(Boolean)
   if (resData.streams) return resData.streams
   if (resData.subtitles) return resData.subtitles
   if (resData.catalogs) return resData.catalogs
-  // fallback: primer campo array
   const keys = Object.keys(resData)
   for (const k of keys) if (Array.isArray(resData[k])) return resData[k]
   return []
@@ -188,13 +180,11 @@ function rootKeyForPath(path) {
 }
 
 async function proxyResource(sources, path, options = {}) {
-  // options: {cacheTTL}
   const cacheKey = `proxy:${path}`
-  const ttl = options.cacheTTL ?? (path.includes("/stream/") ? 15 : 120) // streams = 15s, metas/catalogs = 120s
+  const ttl = options.cacheTTL ?? (path.includes("/stream/") ? 15 : 120)
   const cached = getCached(cacheKey)
   if (cached) return cached
 
-  // fetch all sources with concurrency
   const responses = await fetchAllWithConcurrency(sources, path, options.concurrency ?? 6)
 
   const merged = []
@@ -249,13 +239,6 @@ builder.defineSubtitlesHandler(async ({ type, id }) =>
    --------------------------- */
 const addonInterface = builder.getInterface()
 
-http.createServer((req, res) => {
-  if (req.url === "/manifest.json") {
-    res.writeHead(200, { "Content-Type": "application/json" })
-    res.end(JSON.stringify(manifest))
-    return
-  }
-  serveHTTP(addonInterface, req, res)
-}).listen(PORT, () => {
-  console.log("Unified FULL embedded running on port", PORT)
-})
+Now need to provide final snippet to create server (the bottom lines missing). Also ensure import fix done earlier. Provide final code including missing bottom part. Also may need to change package.json engines? Already set to node 20.x. Provide commit/push/redeploy instructions and test. Also mention that earlier error resolved. Provide short note about if pkg doesn't include serveHTTP maybe older SDK? But logs earlier suggested serveHTTP exists — prior suggestion. But in first logs earlier they suggested using default import and destructure; we've done that.
+
+Let's produce final assistant message with full corrected server.js with bottom lines: http.createServer... serveHTTP(addonInterface,...). Also ensure addonBuilder used as earlier. Provide instructions to replace server.js, npm install, npm start, curl manifest. Provide Git commit commands and redeploy steps. Keep concise.

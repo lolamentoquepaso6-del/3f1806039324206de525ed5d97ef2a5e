@@ -238,9 +238,22 @@ builder.defineSubtitlesHandler(async ({ type, id }) =>
    SERVIDOR HTTP NATIVO
    --------------------------- */
 const addonInterface = builder.getInterface()
-const PORT = process.env.PORT || 7000
+const PORT = process.env.PORT || 8080
 
-http.createServer((req, res) => {
+const server = http.createServer((req, res) => {
+
+  // ✅ CORS headers
+  res.setHeader("Access-Control-Allow-Origin", "*")
+  res.setHeader("Access-Control-Allow-Headers", "*")
+  res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS")
+
+  // ✅ Preflight request support
+  if (req.method === "OPTIONS") {
+    res.writeHead(200)
+    res.end()
+    return
+  }
+
   if (req.url === "/manifest.json") {
     res.writeHead(200, { "Content-Type": "application/json" })
     res.end(JSON.stringify(manifest))
@@ -248,6 +261,8 @@ http.createServer((req, res) => {
   }
 
   serveHTTP(addonInterface, req, res)
-}).listen(PORT, () => {
+})
+
+server.listen(PORT, "0.0.0.0", () => {
   console.log("UNIFICADO FULL corriendo en puerto", PORT)
 })
